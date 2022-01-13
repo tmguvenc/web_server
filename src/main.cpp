@@ -4,6 +4,7 @@
 #include <cstring>
 #include <string>
 #include "data.hpp"
+#include "empty_mutex.hpp"
 
 static int CallbackHttp(lws *wsi, const lws_callback_reasons reason, void *user_data, void *in, const size_t len)
 {
@@ -19,16 +20,18 @@ static inline std::string create_message(const uint64_t id)
   return {buffer, buffer + pos};
 }
 
+using Mutex = EmptyMutex;
+
 static int CallbackRtds(lws *wsi, const lws_callback_reasons reason, void *user_data, void *in, const size_t len)
 {
   const auto pss = static_cast<PerSessionData *>(user_data);
-  auto vhd = static_cast<PerVHostData *>(lws_protocol_vh_priv_get(lws_get_vhost(wsi), lws_get_protocol(wsi)));
+  auto vhd = static_cast<PerVHostData<Mutex> *>(lws_protocol_vh_priv_get(lws_get_vhost(wsi), lws_get_protocol(wsi)));
 
   switch (reason)
   {
   case LWS_CALLBACK_PROTOCOL_INIT:
-    vhd = static_cast<PerVHostData *>(lws_protocol_vh_priv_zalloc(lws_get_vhost(wsi), lws_get_protocol(wsi), sizeof(PerVHostData)));
-    vhd->send_queue_ = new QueueWithId<Buffer, std::mutex>;
+    vhd = static_cast<PerVHostData<Mutex> *>(lws_protocol_vh_priv_zalloc(lws_get_vhost(wsi), lws_get_protocol(wsi), sizeof(PerVHostData<Mutex>)));
+    vhd->send_queue_ = new QueueWithId<Buffer, Mutex>;
     break;
   case LWS_CALLBACK_PROTOCOL_DESTROY:
     delete vhd->send_queue_;
@@ -54,6 +57,7 @@ static int CallbackRtds(lws *wsi, const lws_callback_reasons reason, void *user_
     break;
   case LWS_CALLBACK_CLOSED:
     printf("connection closed\n");
+    --current_user_id;
     fflush(stdout);
     break;
   case LWS_CALLBACK_RECEIVE:

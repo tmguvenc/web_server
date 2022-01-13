@@ -20,8 +20,9 @@ struct Payload
 
 using Buffer = Payload<256>;
 
+template<typename Mutex>
 struct PerVHostData {
-	QueueWithId<Buffer, std::mutex>* send_queue_;
+	QueueWithId<Buffer, Mutex>* send_queue_;
 
 	/**
 	 * \brief	Creates a protocol buffers message and adds it to the send queue
