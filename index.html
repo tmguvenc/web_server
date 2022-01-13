@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html>
+
+<body>
+  <h1>Received Messages</h1>
+  <div id="div_messages">
+
+  </div>
+  <script>
+      let ws = new WebSocket("ws://localhost:9000", "callback_rtds");
+      var reader = new FileReader();
+      var div_mes = document.getElementById("div_messages");
+      reader.addEventListener("load", () => {
+        div_mes.innerHTML += "<p>" + reader.result + "</p>";
+      }, false);
+      
+      ws.onopen = function () {
+        console.log("connected");
+      };
+      ws.onmessage = function (message) {
+        reader.readAsText(message.data);
+      };
+      ws.onclose = function () {
+        console.log("connection closed");
+      };
+  </script>
+
+</body>
+
+</html>
