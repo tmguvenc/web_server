@@ -5,6 +5,11 @@
 #include <string>
 #include "data.hpp"
 #include "empty_mutex.hpp"
+#include <random>
+
+std::random_device dev;
+std::mt19937_64 rng(dev());
+std::uniform_int_distribution<std::mt19937_64::result_type> dist(1, 100);
 
 static int CallbackHttp(lws *wsi, const lws_callback_reasons reason, void *user_data, void *in, const size_t len)
 {
@@ -15,12 +20,15 @@ static uint64_t current_user_id = 0;
 
 static inline std::string create_message(const uint64_t id)
 {
+  const auto number = dist(rng);
   static char buffer[20];
-  const auto pos = sprintf(buffer, "message for: %lu", id);
+  const auto pos = sprintf(buffer, "%lu", number);
   return {buffer, buffer + pos};
 }
 
 using Mutex = EmptyMutex;
+
+static constexpr auto kTimeoutUs = 100 * 1000;
 
 static int CallbackRtds(lws *wsi, const lws_callback_reasons reason, void *user_data, void *in, const size_t len)
 {
@@ -39,7 +47,7 @@ static int CallbackRtds(lws *wsi, const lws_callback_reasons reason, void *user_
   case LWS_CALLBACK_ESTABLISHED:
     pss->id = current_user_id++;
     pss->wsi = wsi;
-    lws_set_timer_usecs(wsi, 1 * LWS_USEC_PER_SEC);
+    lws_set_timer_usecs(wsi, kTimeoutUs);
     break;
   case LWS_CALLBACK_TIMER:
   {
@@ -49,7 +57,7 @@ static int CallbackRtds(lws *wsi, const lws_callback_reasons reason, void *user_
     buf.len = mes.size();
     vhd->CreateMessage(buf, pss->id);
     lws_callback_on_writable(wsi);
-    lws_set_timer_usecs(wsi, 1 * LWS_USEC_PER_SEC);
+    lws_set_timer_usecs(wsi, kTimeoutUs);
   }
   break;
   case LWS_CALLBACK_SERVER_WRITEABLE:

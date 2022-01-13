@@ -2,28 +2,64 @@
 <html>
 
 <body>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.4/Chart.js">
+  </script>
   <h1>Received Messages</h1>
   <div id="div_messages">
 
   </div>
+  <canvas id="myChart" style="width:100%;max-width:700px"></canvas>
+
   <script>
-      let ws = new WebSocket("ws://localhost:9000", "callback_rtds");
-      var reader = new FileReader();
-      var div_mes = document.getElementById("div_messages");
-      reader.addEventListener("load", () => {
-        div_mes.innerHTML += "<p>" + reader.result + "</p>";
-      }, false);
-      
-      ws.onopen = function () {
-        console.log("connected");
-      };
-      ws.onmessage = function (message) {
-        reader.readAsText(message.data);
-      };
-      ws.onclose = function () {
-        console.log("connection closed");
-      };
+    let ws = new WebSocket("ws://localhost:9000", "callback_rtds");
+    var reader = new FileReader();
+    var div_mes = document.getElementById("div_messages");
+    var xValues = [];
+    var i = 0;
+    for (i = 0; i < 101; i++) {
+      xValues.push(i);
+    }
+    var yValues = [];
+    var chart = new Chart("myChart", {
+      type: "line",
+      data: {
+        labels: xValues,
+        datasets: [{
+          fill: false,
+          lineTension: 0,
+          pointRadius: 0,
+          backgroundColor: "rgba(0,0,255,1.0)",
+          borderColor: "rgba(0,0,255,0.7)",
+          data: yValues
+        }],
+      },
+      options: {
+        legend: { display: false }
+      }
+    });
+
+    reader.addEventListener("load", () => {
+      if (yValues.length == 75) {
+        xValues.shift();
+        xValues.push(i);
+        i++;
+        yValues.shift();
+      }
+      yValues.push(reader.result);
+      chart.update();
+    }, false);
+
+    ws.onopen = function () {
+      console.log("connected");
+    };
+    ws.onmessage = function (message) {
+      reader.readAsText(message.data);
+    };
+    ws.onclose = function () {
+      console.log("connection closed");
+    };
   </script>
+
 
 </body>
 
