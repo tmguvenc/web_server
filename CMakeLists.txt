@@ -11,8 +11,8 @@ set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
-include_directories(${LIBWEBSOCKETS_INCLUDE_DIRS})
 include_directories(include)
+include_directories(${LIBWEBSOCKETS_INCLUDE_DIRS})
 add_executable(${PROJECT_NAME} ${SOURCE_FILES})
 
 target_link_libraries(${PROJECT_NAME} ${LIBWEBSOCKETS_LIBRARIES})
