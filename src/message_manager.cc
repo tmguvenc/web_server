@@ -36,8 +36,6 @@ void MessageManager::SendMessage(lws* wsi, const uint64_t client_id) {
   if (bytes_sent < static_cast<int>(message.len)) {
     lwsl_err("ERROR %d writing to ws\n", bytes_sent);
   }
-
-  lwsl_debug("Sent %d bytes\n", bytes_sent);
 }
 
 MessageManager* GetMessageManager(lws* wsi) {
