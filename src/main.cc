@@ -67,16 +67,16 @@ int main() {
   ctx_info.uid = -1;
   ctx_info.options = opts;
 
-  lws_set_log_level(LLL_DEBUG, nullptr);
+  lws_set_log_level(LLL_ERR | LLL_WARN | LLL_NOTICE | LLL_INFO, nullptr);
 
   // create libwebsocket context representing this server
   const auto ctx = lws_create_context(&ctx_info);
   if (!ctx) {
-    printf("Cannot create context. Quiting...\n");
+    lwsl_err("Cannot create context. Quiting...\n");
     return -1;
   }
 
-  printf("starting server...\n");
+  lwsl_info("Server started!\n");
 
   // infinite loop, to end this server send SIGTERM. (CTRL+C)
   while (!g_interruped) {

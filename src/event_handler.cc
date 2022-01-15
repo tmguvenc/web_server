@@ -1,8 +1,8 @@
 #include "event_handler.h"
-#include <iostream>
 #include "per_session_data.h"
 #include "message_manager.h"
 #include <random>
+#include <string>
 
 std::random_device dev;
 std::mt19937_64 rng(dev());
@@ -38,7 +38,6 @@ EventHandler::EventHandler() {
       const auto pss = static_cast<PerSessionData*>(user_data);
       pss->id = current_user_id_++;
       pss->wsi = wsi;
-      lws_set_timer_usecs(wsi, kTimeoutUs);
     });
 
   RegisterCallback(
@@ -57,12 +56,21 @@ EventHandler::EventHandler() {
       const auto pss = static_cast<PerSessionData*>(user_data);
       mes_man_->SendMessage(wsi, pss->id);
     });
+
+  RegisterCallback(
+    LWS_CALLBACK_RECEIVE, [&](lws* wsi, const lws_callback_reasons reason,
+                            void* user_data, void* in, const size_t len) {
+      const auto pss = static_cast<PerSessionData*>(user_data);
+      const char* p = (const char*) in;
+      lwsl_info("received msg: %s\n", std::string{ p, p + len }.c_str());
+      lws_set_timer_usecs(wsi, kTimeoutUs);
+    });
 }
 
 void EventHandler::RegisterCallback(
   lws_callback_reasons reason, CallbackHandler&& handler) {
   if (const auto it = cb_map_.find(reason); it != cb_map_.end()) {
-    std::cerr << "Callback is already registered for [" << reason << "]\n";
+    lwsl_err("Callback is already registered for [%d]\n", reason);
     return;
   }
   cb_map_[reason] = handler;
@@ -74,7 +82,7 @@ void EventHandler::Execute(lws* wsi,
   void* in,
   const size_t len) {
   if (auto it = cb_map_.find(reason); it == cb_map_.end()) {
-    std::cerr << "Callback not found for [" << reason << "]\n";
+    lwsl_err("Callback not found for [%d]\n", reason);
   } else {
     it->second(wsi, reason, user_data, in, len);
   }
