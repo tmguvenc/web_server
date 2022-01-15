@@ -1,0 +1,1 @@
+Checks: "*,-google-*,-modernize-*,-hicpp-signed-bitwise,-readability-implicit-bool-conversion,-fuchsia-*,-hicpp-uppercase-literal-suffix,-llvm-include-order,-readability-uppercase-literal-suffix"
