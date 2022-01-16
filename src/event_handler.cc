@@ -1,6 +1,7 @@
 #include "event_handler.h"
 #include "per_session_data.h"
 #include "message_manager.h"
+#include "request_parser.h"
 #include <random>
 #include <string>
 
@@ -61,9 +62,11 @@ EventHandler::EventHandler() {
     LWS_CALLBACK_RECEIVE, [&](lws* wsi, const lws_callback_reasons reason,
                             void* user_data, void* in, const size_t len) {
       const auto pss = static_cast<PerSessionData*>(user_data);
-      const char* p = (const char*) in;
-      lwsl_info("received msg: %s\n", std::string{ p, p + len }.c_str());
-      lws_set_timer_usecs(wsi, kTimeoutUs);
+      if (const auto ret = ParseClientMessage(in, len); ret.has_value()) {
+        auto& map = pss->req_mes_;
+        const char* p = (const char*) in;
+        lws_set_timer_usecs(wsi, kTimeoutUs);
+      }
     });
 }
 

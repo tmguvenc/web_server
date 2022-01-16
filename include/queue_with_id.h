@@ -5,6 +5,8 @@
 #include <optional>
 #include "lock_guard.h"
 
+namespace ws {
+
 template<typename T, typename Mutex>
 class QueueWithId {
 public:
@@ -27,5 +29,7 @@ private:
   std::unordered_multimap<uint64_t, T> message_queue;
   Mutex mutex;
 };
+
+}  // namespace ws
 
 #endif  // !QUEUE_WITH_ID_HPP

@@ -1,6 +1,8 @@
 #ifndef LOCK_GUARD_H_
 #define LOCK_GUARD_H_
 
+namespace ws {
+
 template<typename Mutex>
 class LockGuard {
 public:
@@ -18,5 +20,7 @@ public:
 private:
   Mutex& mtx;
 };
+
+}  // namespace ws
 
 #endif  // !LOCK_GUARD_H_
