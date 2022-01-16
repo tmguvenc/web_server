@@ -63,9 +63,20 @@
 
     function btn_send_click() {
       var requested_list = {
-        msg: "aos",
-        fields: [
-          "all"
+        device: "egie",
+        messages: [
+          {
+            message: "ekfnav",
+            fields: ["NorthVel", "EastVel", "DownVel", "NorthVelAcc", "EastVelAcc", "DownVelAcc", "Lattitude", "Longitude", "Altitude", "Undulation", "LattitudeAcc", "LongitudeAcc", "AltitudeAcc"]
+          },
+          {
+            message: "ekfeuluer",
+            fields: ["Roll", "Pitch", "Yaw", "RollAcc", "PitchAcc", "YawAcc"]
+          },
+          {
+            message: "imudata",
+            fields: ["AccelX", "AccelY", "AccelZ", "GyroX", "GyroY", "GyroZ", "Temperature", "DeltaVelX", "DeltaVelY", "DeltaVelZ", "DeltaAngleX", "DeltaAngleY", "DeltaAngleZ"]
+          }
         ]
       }
       ws.send(JSON.stringify(requested_list));
