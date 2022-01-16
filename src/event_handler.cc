@@ -63,8 +63,7 @@ EventHandler::EventHandler() {
                             void* user_data, void* in, const size_t len) {
       const auto pss = static_cast<PerSessionData*>(user_data);
       if (const auto ret = ParseClientMessage(in, len); ret.has_value()) {
-        auto& map = pss->req_mes_;
-        const char* p = (const char*) in;
+        pss->req_mes_ = ret.value();
         lws_set_timer_usecs(wsi, kTimeoutUs);
       }
     });

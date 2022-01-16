@@ -28,7 +28,15 @@ std::optional<ClientRequestMessage> ParseClientMessage(
   }
 
   ClientRequestMessage client_mes;
-  client_mes.device_name = pt.get<std::string>("msg");
+  client_mes.device_name = pt.get<std::string>("device");
+  for (const auto& message : pt.get_child("messages")) {
+    Message mes{};
+    mes.msg_name = message.second.get<std::string>("message");
+    for (const auto& field : message.second.get_child("fields")) {
+      mes.field_names.push_back(field.second.get_value(""));
+    }
+    client_mes.messages.push_back(mes);
+  }
   return client_mes;
 }
 
