@@ -4,6 +4,7 @@
 #include "request_parser.h"
 #include <random>
 #include <string>
+#include "rtds.pb.h"
 
 std::random_device dev;
 std::mt19937_64 rng(dev());
@@ -62,10 +63,16 @@ EventHandler::EventHandler() {
     LWS_CALLBACK_RECEIVE, [&](lws* wsi, const lws_callback_reasons reason,
                             void* user_data, void* in, const size_t len) {
       const auto pss = static_cast<PerSessionData*>(user_data);
-      if (const auto ret = ParseClientMessage(in, len); ret.has_value()) {
-        pss->req_mes_ = ret.value();
-        lws_set_timer_usecs(wsi, kTimeoutUs);
+      MessageField mf;
+      if (mf.ParseFromArray(in, len)) {
+        lwsl_info("Message from [%s]: %f", mf.name().c_str(), mf.value());
       }
+
+      // if (const auto ret = ParseClientMessage(in, len); ret.has_value()) {
+      //   pss->req_mes_ = ret.value();
+      // }
+
+      lws_set_timer_usecs(wsi, kTimeoutUs);
     });
 }
 

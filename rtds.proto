@@ -1,0 +1,40 @@
+syntax = "proto3";
+
+message MessageField { 
+  string name = 1;
+  float value = 2;
+}
+
+message Message {
+  string proto = 1;
+  int32 id = 2;
+  string name = 3;
+  uint64 ts = 4;
+  repeated MessageField fields = 5;
+}
+
+// communication message type
+enum ComMessageType {
+  UNKNOWN = 0;
+  
+  // rtds -> web browser
+  AVAIL_MESSAGES = 1;
+  
+  // rtds -> web browser
+  ACTUAL_DATA = 2;
+  
+  // web browser -> rtds
+  REQUEST_MESSAGE_LIST = 3;
+}
+
+message ComMessage {
+  ComMessageType type = 1;
+  
+  repeated Message avail_messages = 2;
+  
+  // rtds sends to web browser
+  repeated Message payload = 3;
+  
+  // web browser sends to rtds 
+  repeated Message req_messages = 4;
+}

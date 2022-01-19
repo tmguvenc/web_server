@@ -3,14 +3,6 @@
 #include "per_session_data.h"
 #include <csignal>
 
-static int CallbackHttp(lws* wsi,
-  const lws_callback_reasons reason,
-  void* user_data,
-  void* in,
-  const size_t len) {
-  return 0;
-}
-
 ws::EventHandler event_handler;
 
 static int CallbackRtds(lws* wsi,
@@ -25,9 +17,9 @@ static int CallbackRtds(lws* wsi,
 static struct lws_protocols g_proto_list[] = {
   /* first protocol must always be HTTP handler */
   {
-    "http-only",   // name
-    CallbackHttp,  // callback
-    0              // per_session_data_size
+    "http-only",              // name
+    lws_callback_http_dummy,  // callback
+    0                         // per_session_data_size
   },
   {
     "callback_rtds",            // protocol name - very important!
