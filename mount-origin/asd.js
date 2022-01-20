@@ -1,6 +1,15 @@
+goog.require('proto.commessage');
+goog.require('proto.commessagetype');
+goog.require('proto.message');
 goog.require('proto.messagefield');
 
 var reader = new FileReader();
+reader.addEventListener("load", () => {
+  var mf = proto.MessageField.deserializeBinary(reader.result);
+  console.log("received name: " + mf.getName());
+  console.log("received value: " + mf.getValue());
+}, false);
+
 var xValues = [];
 var yValues = [];
 var i = 0;
@@ -15,28 +24,13 @@ ws.onopen = function () {
   console.log("connected");
 };
 ws.onmessage = function (message) {
-  reader.readAsText(message.data);
+  reader.readAsArrayBuffer(message.data);
 };
 ws.onclose = function () {
   console.log("connection closed");
 };
 for (i = 0; i < 101; i++) {
   xValues.push(i);
-}
-
-
-function connect() {
-  reader.addEventListener("load", () => {
-    if (yValues.length == 75) {
-      xValues.shift();
-      xValues.push(i);
-      i++;
-      yValues.shift();
-    }
-    yValues.push(reader.result);
-    chart.update();
-  }, false);
-
 }
 
 function create_chart(chart_name) {

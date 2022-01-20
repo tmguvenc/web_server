@@ -14,7 +14,7 @@ using Queue = QueueWithId<Payload, Mutex>;
 class MessageManager {
 public:
   void CreateMessage(
-    const uint64_t client_id, const char* data, const uint64_t len);
+    const uint64_t client_id, const void* data, const uint64_t len);
 
   void SendMessage(lws* wsi, const uint64_t client_id);
 

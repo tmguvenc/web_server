@@ -1,7 +1,6 @@
 #include "event_handler.h"
 #include "per_session_data.h"
 #include "message_manager.h"
-#include "request_parser.h"
 #include <random>
 #include <string>
 #include "rtds.pb.h"
@@ -63,16 +62,26 @@ EventHandler::EventHandler() {
     LWS_CALLBACK_RECEIVE, [&](lws* wsi, const lws_callback_reasons reason,
                             void* user_data, void* in, const size_t len) {
       const auto pss = static_cast<PerSessionData*>(user_data);
-      MessageField mf;
-      if (mf.ParseFromArray(in, len)) {
-        lwsl_info("Message from [%s]: %f", mf.name().c_str(), mf.value());
+      {
+        MessageField mf;
+        if (mf.ParseFromArray(in, len)) {
+          lwsl_info("Message from [%s]: %f", mf.name().c_str(), mf.value());
+        }
       }
 
-      // if (const auto ret = ParseClientMessage(in, len); ret.has_value()) {
-      //   pss->req_mes_ = ret.value();
-      // }
+      {
+        MessageField mf;
+        mf.set_name("Answer");
+        mf.set_value(12345);
+        Payload pl{
+          .len = mf.ByteSizeLong()
+        };
+        mf.SerializeToArray(pl.data.data(), pl.len);
+        mes_man_->CreateMessage(pss->id, pl.data.data(), pl.len);
+        lws_callback_on_writable(wsi);
+      }
 
-      lws_set_timer_usecs(wsi, kTimeoutUs);
+      // lws_set_timer_usecs(wsi, kTimeoutUs);
     });
 }
 

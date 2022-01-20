@@ -4,7 +4,7 @@
 namespace ws {
 
 void MessageManager::CreateMessage(
-  const uint64_t client_id, const char* data, const uint64_t len) {
+  const uint64_t client_id, const void* data, const uint64_t len) {
   if (len > kMaxDataSizeInBytes) {
     lwsl_err("Invalid Data Size!\n");
     return;
